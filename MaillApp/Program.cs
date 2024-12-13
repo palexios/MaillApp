@@ -100,3 +100,90 @@ public class MailBox
         Console.WriteLine($"Messages exported to {fileName}");
     }
 }
+class Program
+{
+    static void Main(string[] args)
+    {
+        MailBox mailBox = new MailBox();
+        User currentUser = null;
+
+        while (true)
+        {
+            Console.WriteLine("1. Register");
+            Console.WriteLine("2. Login");
+            Console.WriteLine("3. Send Message");
+            Console.WriteLine("4. View Inbox");
+            Console.WriteLine("5. Export Messages to TXT");
+            Console.WriteLine("6. Exit");
+            Console.Write("Choose an option: ");
+            var choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter username: ");
+                    string username = Console.ReadLine();
+                    Console.Write("Enter password: ");
+                    string password = Console.ReadLine();
+                    mailBox.RegisterUser(username, password);
+                    break;
+
+                case "2":
+                    Console.Write("Enter username: ");
+                    username = Console.ReadLine();
+                    Console.Write("Enter password: ");
+                    password = Console.ReadLine();
+                    currentUser = mailBox.Authenticate(username, password);
+
+                    if (currentUser == null)
+                    {
+                        Console.WriteLine("Authentication failed!");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Welcome, {currentUser.Username}!");
+                    }
+                    break;
+
+                case "3":
+                    if (currentUser == null)
+                    {
+                        Console.WriteLine("You must log in first.");
+                        break;
+                    }
+
+                    Console.Write("Enter recipient username: ");
+                    string recipient = Console.ReadLine();
+                    Console.Write("Enter message: ");
+                    string messageContent = Console.ReadLine();
+                    mailBox.SendMessage(currentUser, recipient, messageContent);
+                    break;
+
+                case "4":
+                    if (currentUser == null)
+                    {
+                        Console.WriteLine("You must log in first.");
+                        break;
+                    }
+                    mailBox.ReceiveMessages(currentUser);
+                    break;
+
+                case "5":
+                    if (currentUser == null)
+                    {
+                        Console.WriteLine("You must log in first.");
+                        break;
+                    }
+                    mailBox.ExportMessagesToTxt(currentUser);
+                    break;
+
+                case "6":
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid option.");
+                    break;
+            }
+        }
+    }
+}
