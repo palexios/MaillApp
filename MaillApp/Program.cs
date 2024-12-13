@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
 public class User
 {
     public string Username { get; set; }
     public string Password { get; set; }
     public List<Message> Inbox { get; set; } = new List<Message>();
     public List<Message> SentMessages { get; set; } = new List<Message>();
+    public string Signature { get; set; } // Добавляем свойство для подписи
 
     public User(string username, string password)
     {
@@ -30,6 +32,7 @@ public class Message
         DateSent = DateTime.Now;
     }
 }
+
 public class MailBox
 {
     private Dictionary<string, User> users = new Dictionary<string, User>();
@@ -60,7 +63,15 @@ public class MailBox
     {
         if (users.ContainsKey(toUsername))
         {
-            var message = new Message(fromUser.Username, toUsername, content);
+            string fullContent = content;
+
+            // Добавляем подпись к содержимому сообщения
+            if (!string.IsNullOrEmpty(fromUser.Signature))
+            {
+                fullContent += "\n\n" + fromUser.Signature;
+            }
+
+            var message = new Message(fromUser.Username, toUsername, fullContent);
             users[toUsername].Inbox.Add(message);
             fromUser.SentMessages.Add(message);
             Console.WriteLine("Message sent successfully!");
@@ -99,7 +110,15 @@ public class MailBox
         }
         Console.WriteLine($"Messages exported to {fileName}");
     }
+
+    // Функция для установки подписи пользователем
+    public void SetSignature(User user, string signature)
+    {
+        user.Signature = signature;
+        Console.WriteLine("Signature updated successfully!");
+    }
 }
+
 class Program
 {
     static void Main(string[] args)
@@ -114,7 +133,8 @@ class Program
             Console.WriteLine("3. Send Message");
             Console.WriteLine("4. View Inbox");
             Console.WriteLine("5. Export Messages to TXT");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("6. Set Signature");
+            Console.WriteLine("7. Exit");
             Console.Write("Choose an option: ");
             var choice = Console.ReadLine();
 
@@ -178,6 +198,17 @@ class Program
                     break;
 
                 case "6":
+                    if (currentUser == null)
+                    {
+                        Console.WriteLine("You must log in first.");
+                        break;
+                    }
+                    Console.Write("Enter your signature: ");
+                    string signature = Console.ReadLine();
+                    mailBox.SetSignature(currentUser, signature);
+                    break;
+
+                case "7":
                     return;
 
                 default:
